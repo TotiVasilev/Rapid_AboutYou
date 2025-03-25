@@ -7,15 +7,20 @@ public class RakijaGame : MonoBehaviour
 {
     public Transform well;
     public List<Transform> trees;
+    public Transform masher;
 
-    public Sprite treeWithPlums; // Missing this reference
-    public Sprite treeWithoutPlums; // Missing this reference
+    public Sprite treeWithPlums;
+    public Sprite treeWithoutPlums;
 
-    public PlayerController player; // Reference to player script for position
+    public PlayerController player;
     public Transform bucket;
     private bool hasBucket = false;
+
     public Sprite emptyBucketSprite;
     public Sprite fullBucketSprite;
+    public Sprite bucketWithPlums;
+    public Sprite bucketWithLiquid;
+
     private SpriteRenderer bucketSpriteRenderer;
 
     public Slider extractionSlider;
@@ -24,33 +29,37 @@ public class RakijaGame : MonoBehaviour
 
     private bool isNearBucket = false;
     private bool isNearWell = false;
+    private bool isNearMasher = false;
     private Transform nearTree = null;
 
     private bool bucketFull = false;
+    private bool bucketHasPlums = false;
+    private bool bucketHasLiquid = false;
+
+    private bool masherProcessing = false;
+    private bool liquidReady = false;
 
     private Dictionary<Transform, int> treeWaterLevels = new Dictionary<Transform, int>();
     private Dictionary<Transform, bool> treeGrowthStatus = new Dictionary<Transform, bool>();
 
-    private float interactionDistance = .5f; // Distance for interaction (e.g., 2 units)
+    private float interactionDistance = 0.5f;
 
     void Start()
     {
         bucketSpriteRenderer = bucket.GetComponent<SpriteRenderer>();
         bucketSpriteRenderer.sprite = emptyBucketSprite;
-
         extractionSlider.gameObject.SetActive(false);
 
         foreach (Transform tree in trees)
         {
             treeWaterLevels[tree] = 0;
             treeGrowthStatus[tree] = false;
-            tree.GetComponent<SpriteRenderer>().sprite = treeWithoutPlums; // Set initial tree sprite without plums
+            tree.GetComponent<SpriteRenderer>().sprite = treeWithoutPlums;
         }
     }
 
     void Update()
     {
-        // Update the player's proximity to interact with objects
         CheckInteractions();
 
         if (Input.GetKeyDown(KeyCode.G) && isNearBucket)
@@ -60,60 +69,50 @@ public class RakijaGame : MonoBehaviour
 
         if (hasBucket)
         {
-            if (Input.GetKey(KeyCode.F) && isNearWell && !bucketFull)
+            if (Input.GetKey(KeyCode.F) && isNearWell)
             {
-                StartExtractingWater();
+                TryExtractWater();
             }
             else if (Input.GetKeyUp(KeyCode.F) && isExtractingWater)
             {
-                DropWater();
+                StopExtractingWater();
             }
-            else if (Input.GetKeyDown(KeyCode.F) && nearTree != null && bucketFull)
+            else if (Input.GetKeyDown(KeyCode.F) && nearTree != null)
             {
-                if (!treeGrowthStatus[nearTree])
-                    WaterTree(nearTree);
-                else
-                    CollectPlums(nearTree);
+                TryInteractWithTree(nearTree);
+            }
+            else if (Input.GetKeyDown(KeyCode.F) && isNearMasher)
+            {
+                TryInteractWithMasher();
             }
         }
     }
 
-    // Check if player is near any interactable objects
     void CheckInteractions()
     {
         isNearBucket = Vector2.Distance(player.transform.position, bucket.position) <= interactionDistance;
-        if (isNearBucket)
-        {
-            Debug.Log("Player is near the bucket. Press G to pick it up.");
-        }
-
         isNearWell = Vector2.Distance(player.transform.position, well.position) <= interactionDistance;
-        if (isNearWell)
-        {
-            Debug.Log("Player is near the well. Hold F to extract water.");
-        }
+        isNearMasher = Vector2.Distance(player.transform.position, masher.position) <= interactionDistance;
 
         foreach (Transform tree in trees)
         {
             if (Vector2.Distance(player.transform.position, tree.position) <= interactionDistance)
             {
                 nearTree = tree;
-                Debug.Log("Player is near a tree. Hold F to water or collect plums.");
-                return; // Only need one tree interaction at a time
+                return;
             }
         }
+        nearTree = null;
     }
 
     void ToggleBucket()
     {
         hasBucket = !hasBucket;
-
         if (hasBucket)
         {
             bucket.SetParent(player.transform);
             bucket.localPosition = Vector3.zero;
             player.PickUpBucket();
-            Debug.Log("Picked up the bucket.");
         }
         else
         {
@@ -121,19 +120,23 @@ public class RakijaGame : MonoBehaviour
             bucket.position = new Vector3(player.transform.position.x, player.transform.position.y - 0.5f, 0);
             bucket.gameObject.SetActive(true);
             player.DropBucket();
-            Debug.Log("Dropped the bucket.");
         }
     }
 
-    void StartExtractingWater()
+    void TryExtractWater()
     {
-        if (!bucketFull && !isExtractingWater)
+        if (bucketFull || bucketHasPlums || bucketHasLiquid)
+        {
+            Debug.Log("The bucket already contains something!");
+            return;
+        }
+
+        if (!isExtractingWater)
         {
             isExtractingWater = true;
             extractionProgress = 0f;
             extractionSlider.gameObject.SetActive(true);
             StartCoroutine(ExtractWater());
-            Debug.Log("Started extracting water...");
         }
     }
 
@@ -150,50 +153,102 @@ public class RakijaGame : MonoBehaviour
         {
             bucketFull = true;
             bucketSpriteRenderer.sprite = fullBucketSprite;
-            Debug.Log("Bucket is now full.");
         }
 
         extractionSlider.gameObject.SetActive(false);
         isExtractingWater = false;
     }
 
-    void DropWater()
+    void StopExtractingWater()
     {
         isExtractingWater = false;
         extractionSlider.gameObject.SetActive(false);
-        Debug.Log("Water extraction interrupted!");
+    }
+
+    void TryInteractWithTree(Transform tree)
+    {
+        if (bucketFull)
+        {
+            WaterTree(tree);
+        }
+        else if (treeGrowthStatus[tree] && !bucketHasPlums)
+        {
+            CollectPlums(tree);
+        }
     }
 
     void WaterTree(Transform tree)
     {
-        if (bucketFull)
-        {
-            treeWaterLevels[tree]++;
-            bucketFull = false;
-            bucketSpriteRenderer.sprite = emptyBucketSprite;
-            Debug.Log($"Watered tree: {treeWaterLevels[tree]}/3");
+        treeWaterLevels[tree]++;
+        bucketFull = false;
+        bucketSpriteRenderer.sprite = emptyBucketSprite;
+        Debug.Log($"Watered tree: {treeWaterLevels[tree]}/3");
 
-            if (treeWaterLevels[tree] >= 3)
-            {
-                StartCoroutine(GrowPlums(tree));
-            }
+        if (treeWaterLevels[tree] >= 3)
+        {
+            StartCoroutine(GrowPlums(tree));
         }
     }
 
     IEnumerator GrowPlums(Transform tree)
     {
         treeGrowthStatus[tree] = true;
-        Debug.Log("Plums are growing...");
         yield return new WaitForSeconds(5f);
-        tree.GetComponent<SpriteRenderer>().sprite = treeWithPlums; // Set tree sprite to with plums
-        Debug.Log("Plums are ready!");
+        tree.GetComponent<SpriteRenderer>().sprite = treeWithPlums;
     }
 
     void CollectPlums(Transform tree)
     {
-        Debug.Log("Plums collected! Restarting cycle.");
-        tree.GetComponent<SpriteRenderer>().sprite = treeWithoutPlums; // Reset tree sprite to without plums
+        if (bucketFull || bucketHasPlums || bucketHasLiquid)
+        {
+            Debug.Log("The bucket already contains something!");
+            return;
+        }
+
+        bucketHasPlums = true;
+        bucketSpriteRenderer.sprite = bucketWithPlums;
+        tree.GetComponent<SpriteRenderer>().sprite = treeWithoutPlums;
         treeGrowthStatus[tree] = false;
         treeWaterLevels[tree] = 0;
+    }
+
+    void TryInteractWithMasher()
+    {
+        if (bucketHasPlums && !masherProcessing)
+        {
+            DeliverPlumsToMasher();
+        }
+        else if (liquidReady)
+        {
+            CollectLiquid();
+        }
+    }
+
+    void DeliverPlumsToMasher()
+    {
+        bucketHasPlums = false;
+        bucketSpriteRenderer.sprite = emptyBucketSprite;
+        masherProcessing = true;
+        StartCoroutine(ProcessPlums());
+    }
+
+    IEnumerator ProcessPlums()
+    {
+        yield return new WaitForSeconds(5f);
+        liquidReady = true;
+        masherProcessing = false;
+    }
+
+    void CollectLiquid()
+    {
+        if (bucketHasPlums || bucketFull)
+        {
+            Debug.Log("The bucket already contains something!");
+            return;
+        }
+
+        liquidReady = false;
+        bucketHasLiquid = true;
+        bucketSpriteRenderer.sprite = bucketWithLiquid;
     }
 }
