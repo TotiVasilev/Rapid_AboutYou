@@ -966,7 +966,7 @@ RectTransform:
   m_Father: {fileID: 321754845}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1468,7 +1468,6 @@ MonoBehaviour:
   fullBucketSprite: {fileID: 7612521910803499764, guid: a385892edd5a90149bc8ab475726c238, type: 3}
   bucketWithPlums: {fileID: 567408210981163183, guid: cc7b2d6738ceb5145ba764c9f34d5229, type: 3}
   bucketWithLiquid: {fileID: -8064086602004268640, guid: aa223ec0dfb4dd64b9775c9099110bb1, type: 3}
-  bucketWithRakija: {fileID: 0}
   extractionSlider: {fileID: 1960368233}
 --- !u!4 &757010048
 Transform:
@@ -1745,7 +1744,7 @@ RectTransform:
   m_Father: {fileID: 463913135}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -2924,7 +2923,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1693926105
 MonoBehaviour:
   m_ObjectHideFlags: 0
