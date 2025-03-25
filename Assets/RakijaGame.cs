@@ -327,8 +327,18 @@ public class RakijaGame : MonoBehaviour
     void EndGame()
     {
         gameCompleted = true;
+
+        // Get the total game time
         float totalTime = Time.time - startTime;
-        timeText.text = $"Game Completed in {totalTime:F2} seconds!";
+
+        // Convert totalTime to minutes and seconds
+        int minutes = Mathf.FloorToInt(totalTime / 60);
+        int seconds = Mathf.FloorToInt(totalTime % 60);
+
+        // Update the time text in the format "minutes:seconds"
+        timeText.text = string.Format("{0}:{1:D2}", minutes, seconds);
+
         gameCompleteUI.SetActive(true); // Show the game complete UI
     }
+
 }
