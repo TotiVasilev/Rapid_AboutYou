@@ -8,6 +8,7 @@ public class RakijaGame : MonoBehaviour
     public Transform well;
     public List<Transform> trees;
     public Transform masher;
+    public Transform kazan; // New Kazan (boiling pot) reference
 
     public Sprite treeWithPlums;
     public Sprite treeWithoutPlums;
@@ -20,6 +21,7 @@ public class RakijaGame : MonoBehaviour
     public Sprite fullBucketSprite;
     public Sprite bucketWithPlums;
     public Sprite bucketWithLiquid;
+    public Sprite bucketWithRakija; // Final rakija sprite
 
     private SpriteRenderer bucketSpriteRenderer;
 
@@ -30,14 +32,22 @@ public class RakijaGame : MonoBehaviour
     private bool isNearBucket = false;
     private bool isNearWell = false;
     private bool isNearMasher = false;
+    private bool isNearKazan = false;
     private Transform nearTree = null;
 
     private bool bucketFull = false;
     private bool bucketHasPlums = false;
     private bool bucketHasLiquid = false;
+    private bool bucketHasRakija = false;
 
     private bool masherProcessing = false;
     private bool liquidReady = false;
+
+    private int kazanLiquidCount = 0; // Tracks poured liquid
+    private bool kazanProcessing = false;
+    private bool rakijaReady = false;
+
+    private float boilingTime = 20f; // Changeable boiling duration
 
     private Dictionary<Transform, int> treeWaterLevels = new Dictionary<Transform, int>();
     private Dictionary<Transform, bool> treeGrowthStatus = new Dictionary<Transform, bool>();
@@ -85,6 +95,10 @@ public class RakijaGame : MonoBehaviour
             {
                 TryInteractWithMasher();
             }
+            else if (Input.GetKeyDown(KeyCode.F) && isNearKazan)
+            {
+                TryInteractWithKazan();
+            }
         }
     }
 
@@ -93,6 +107,7 @@ public class RakijaGame : MonoBehaviour
         isNearBucket = Vector2.Distance(player.transform.position, bucket.position) <= interactionDistance;
         isNearWell = Vector2.Distance(player.transform.position, well.position) <= interactionDistance;
         isNearMasher = Vector2.Distance(player.transform.position, masher.position) <= interactionDistance;
+        isNearKazan = Vector2.Distance(player.transform.position, kazan.position) <= interactionDistance;
 
         foreach (Transform tree in trees)
         {
@@ -125,7 +140,7 @@ public class RakijaGame : MonoBehaviour
 
     void TryExtractWater()
     {
-        if (bucketFull || bucketHasPlums || bucketHasLiquid)
+        if (bucketFull || bucketHasPlums || bucketHasLiquid || bucketHasRakija)
         {
             Debug.Log("The bucket already contains something!");
             return;
@@ -199,7 +214,7 @@ public class RakijaGame : MonoBehaviour
 
     void CollectPlums(Transform tree)
     {
-        if (bucketFull || bucketHasPlums || bucketHasLiquid)
+        if (bucketFull || bucketHasPlums || bucketHasLiquid || bucketHasRakija)
         {
             Debug.Log("The bucket already contains something!");
             return;
@@ -241,7 +256,7 @@ public class RakijaGame : MonoBehaviour
 
     void CollectLiquid()
     {
-        if (bucketHasPlums || bucketFull)
+        if (!liquidReady || bucketHasPlums || bucketFull || bucketHasRakija)
         {
             Debug.Log("The bucket already contains something!");
             return;
@@ -250,5 +265,35 @@ public class RakijaGame : MonoBehaviour
         liquidReady = false;
         bucketHasLiquid = true;
         bucketSpriteRenderer.sprite = bucketWithLiquid;
+    }
+
+    void TryInteractWithKazan()
+    {
+        if (bucketHasLiquid && !kazanProcessing)
+        {
+            kazanLiquidCount++;
+            bucketHasLiquid = false;
+            bucketSpriteRenderer.sprite = emptyBucketSprite;
+
+            if (kazanLiquidCount >= 3)
+            {
+                kazanProcessing = true;
+                StartCoroutine(BoilLiquid());
+            }
+        }
+        else if (rakijaReady)
+        {
+            bucketHasRakija = true;
+            rakijaReady = false;
+            bucketSpriteRenderer.sprite = bucketWithRakija;
+        }
+    }
+
+    IEnumerator BoilLiquid()
+    {
+        yield return new WaitForSeconds(boilingTime);
+        rakijaReady = true;
+        kazanProcessing = false;
+        kazanLiquidCount = 0;
     }
 }
