@@ -130,7 +130,6 @@ GameObject:
   - component: {fileID: 38316636}
   - component: {fileID: 38316635}
   - component: {fileID: 38316637}
-  - component: {fileID: 38316638}
   - component: {fileID: 38316639}
   m_Layer: 0
   m_Name: Farm
@@ -268,18 +267,6 @@ PolygonCollider2D:
       - {x: 2.9299998, y: -1.495}
       - {x: 2.9299998, y: 1.495}
   m_UseDelaunayMesh: 0
---- !u!114 &38316638
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 38316634}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3f2b79b0a2a27db47835b9d80234e0d4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!61 &38316639
 BoxCollider2D:
   m_ObjectHideFlags: 0
