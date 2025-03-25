@@ -9,6 +9,10 @@ public class RakijaGame : MonoBehaviour
     public List<Transform> trees;
     public Transform masher;
     public Transform kazan; // New Kazan (boiling pot) reference
+    public GameObject barrelPrefab; // New Barrel Prefab reference
+    public Transform[] barrelSpawnPoints; // Array of 3 Barrel spawn points
+    public GameObject gameCompleteUI; // Game complete UI reference
+    public Text timeText; // UI Text for showing time of completion
 
     public Sprite treeWithPlums;
     public Sprite treeWithoutPlums;
@@ -21,7 +25,7 @@ public class RakijaGame : MonoBehaviour
     public Sprite fullBucketSprite;
     public Sprite bucketWithPlums;
     public Sprite bucketWithLiquid;
-    public Sprite bucketWithRakija; // Final rakija sprite
+   
 
     private SpriteRenderer bucketSpriteRenderer;
 
@@ -38,7 +42,6 @@ public class RakijaGame : MonoBehaviour
     private bool bucketFull = false;
     private bool bucketHasPlums = false;
     private bool bucketHasLiquid = false;
-    private bool bucketHasRakija = false;
 
     private bool masherProcessing = false;
     private bool liquidReady = false;
@@ -54,6 +57,10 @@ public class RakijaGame : MonoBehaviour
 
     private float interactionDistance = 0.5f;
 
+    private int barrelCount = 0; // Tracks how many barrels have been created
+    private float startTime; // Track game start time
+    private bool gameCompleted = false;
+
     void Start()
     {
         bucketSpriteRenderer = bucket.GetComponent<SpriteRenderer>();
@@ -66,6 +73,9 @@ public class RakijaGame : MonoBehaviour
             treeGrowthStatus[tree] = false;
             tree.GetComponent<SpriteRenderer>().sprite = treeWithoutPlums;
         }
+
+        startTime = Time.time; // Record the game start time
+        gameCompleteUI.SetActive(false); // Hide the game complete UI at the start
     }
 
     void Update()
@@ -140,7 +150,7 @@ public class RakijaGame : MonoBehaviour
 
     void TryExtractWater()
     {
-        if (bucketFull || bucketHasPlums || bucketHasLiquid || bucketHasRakija)
+        if (bucketFull || bucketHasPlums || bucketHasLiquid)
         {
             Debug.Log("The bucket already contains something!");
             return;
@@ -214,7 +224,7 @@ public class RakijaGame : MonoBehaviour
 
     void CollectPlums(Transform tree)
     {
-        if (bucketFull || bucketHasPlums || bucketHasLiquid || bucketHasRakija)
+        if (bucketFull || bucketHasPlums || bucketHasLiquid)
         {
             Debug.Log("The bucket already contains something!");
             return;
@@ -256,7 +266,7 @@ public class RakijaGame : MonoBehaviour
 
     void CollectLiquid()
     {
-        if (!liquidReady || bucketHasPlums || bucketFull || bucketHasRakija)
+        if (!liquidReady || bucketHasPlums || bucketFull)
         {
             Debug.Log("The bucket already contains something!");
             return;
@@ -283,9 +293,19 @@ public class RakijaGame : MonoBehaviour
         }
         else if (rakijaReady)
         {
-            bucketHasRakija = true;
+            
             rakijaReady = false;
-            bucketSpriteRenderer.sprite = bucketWithRakija;
+            
+
+            // Spawn a barrel after rakija is ready
+            SpawnBarrel();
+
+            // Check if 3 barrels are made and complete the game
+            barrelCount++;
+            if (barrelCount >= 3 && !gameCompleted)
+            {
+                EndGame();
+            }
         }
     }
 
@@ -295,5 +315,20 @@ public class RakijaGame : MonoBehaviour
         rakijaReady = true;
         kazanProcessing = false;
         kazanLiquidCount = 0;
+    }
+
+    void SpawnBarrel()
+    {
+        // Spawn a barrel at the next spawn point in the array (cyclic order)
+        Transform spawnPoint = barrelSpawnPoints[barrelCount % barrelSpawnPoints.Length];
+        Instantiate(barrelPrefab, spawnPoint.position, Quaternion.identity);
+    }
+
+    void EndGame()
+    {
+        gameCompleted = true;
+        float totalTime = Time.time - startTime;
+        timeText.text = $"Game Completed in {totalTime:F2} seconds!";
+        gameCompleteUI.SetActive(true); // Show the game complete UI
     }
 }
