@@ -8,11 +8,11 @@ public class RakijaGame : MonoBehaviour
     public Transform well;
     public List<Transform> trees;
     public Transform masher;
-    public Transform kazan; // New Kazan (boiling pot) reference
-    public GameObject barrelPrefab; // New Barrel Prefab reference
-    public Transform[] barrelSpawnPoints; // Array of 3 Barrel spawn points
-    public GameObject gameCompleteUI; // Game complete UI reference
-    public Text timeText; // UI Text for showing time of completion
+    public Transform kazan; 
+    public GameObject barrelPrefab; 
+    public Transform[] barrelSpawnPoints; 
+    public GameObject gameCompleteUI; 
+    public Text timeText; 
 
     public Sprite treeWithPlums;
     public Sprite treeWithoutPlums;
@@ -46,19 +46,19 @@ public class RakijaGame : MonoBehaviour
     private bool masherProcessing = false;
     private bool liquidReady = false;
 
-    private int kazanLiquidCount = 0; // Tracks poured liquid
+    private int kazanLiquidCount = 0; 
     private bool kazanProcessing = false;
     private bool rakijaReady = false;
 
-    private float boilingTime = 20f; // Changeable boiling duration
+    private float boilingTime = 20f; 
 
     private Dictionary<Transform, int> treeWaterLevels = new Dictionary<Transform, int>();
     private Dictionary<Transform, bool> treeGrowthStatus = new Dictionary<Transform, bool>();
 
     private float interactionDistance = 0.5f;
 
-    private int barrelCount = 0; // Tracks how many barrels have been created
-    private float startTime; // Track game start time
+    private int barrelCount = 0; 
+    private float startTime; 
     private bool gameCompleted = false;
 
     void Start()
@@ -74,8 +74,8 @@ public class RakijaGame : MonoBehaviour
             tree.GetComponent<SpriteRenderer>().sprite = treeWithoutPlums;
         }
 
-        startTime = Time.time; // Record the game start time
-        gameCompleteUI.SetActive(false); // Hide the game complete UI at the start
+        startTime = Time.time; 
+        gameCompleteUI.SetActive(false); 
     }
 
     void Update()
@@ -297,10 +297,10 @@ public class RakijaGame : MonoBehaviour
             rakijaReady = false;
             
 
-            // Spawn a barrel after rakija is ready
+            
             SpawnBarrel();
 
-            // Check if 3 barrels are made and complete the game
+            
             barrelCount++;
             if (barrelCount >= 3 && !gameCompleted)
             {
@@ -319,7 +319,7 @@ public class RakijaGame : MonoBehaviour
 
     void SpawnBarrel()
     {
-        // Spawn a barrel at the next spawn point in the array (cyclic order)
+        
         Transform spawnPoint = barrelSpawnPoints[barrelCount % barrelSpawnPoints.Length];
         Instantiate(barrelPrefab, spawnPoint.position, Quaternion.identity);
     }
@@ -328,17 +328,17 @@ public class RakijaGame : MonoBehaviour
     {
         gameCompleted = true;
 
-        // Get the total game time
+        
         float totalTime = Time.time - startTime;
 
-        // Convert totalTime to minutes and seconds
+        
         int minutes = Mathf.FloorToInt(totalTime / 60);
         int seconds = Mathf.FloorToInt(totalTime % 60);
 
-        // Update the time text in the format "minutes:seconds"
+        
         timeText.text = string.Format("{0}:{1:D2}", minutes, seconds);
 
-        gameCompleteUI.SetActive(true); // Show the game complete UI
+        gameCompleteUI.SetActive(true); 
     }
 
 }
