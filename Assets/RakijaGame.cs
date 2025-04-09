@@ -8,11 +8,11 @@ public class RakijaGame : MonoBehaviour
     public Transform well;
     public List<Transform> trees;
     public Transform masher;
-    public Transform kazan; 
-    public GameObject barrelPrefab; 
-    public Transform[] barrelSpawnPoints; 
-    public GameObject gameCompleteUI; 
-    public Text timeText; 
+    public Transform kazan;
+    public GameObject barrelPrefab;
+    public Transform[] barrelSpawnPoints;
+    public GameObject gameCompleteUI;
+    public Text timeText;
 
     public Sprite treeWithPlums;
     public Sprite treeWithoutPlums;
@@ -25,7 +25,6 @@ public class RakijaGame : MonoBehaviour
     public Sprite fullBucketSprite;
     public Sprite bucketWithPlums;
     public Sprite bucketWithLiquid;
-   
 
     private SpriteRenderer bucketSpriteRenderer;
 
@@ -46,20 +45,22 @@ public class RakijaGame : MonoBehaviour
     private bool masherProcessing = false;
     private bool liquidReady = false;
 
-    private int kazanLiquidCount = 0; 
+    private int kazanLiquidCount = 0;
     private bool kazanProcessing = false;
     private bool rakijaReady = false;
 
-    private float boilingTime = 20f; 
+    private float boilingTime = 20f;
 
     private Dictionary<Transform, int> treeWaterLevels = new Dictionary<Transform, int>();
     private Dictionary<Transform, bool> treeGrowthStatus = new Dictionary<Transform, bool>();
 
-    private float interactionDistance = 0.5f;
+    private float interactionDistance = .5f;
 
-    private int barrelCount = 0; 
-    private float startTime; 
+    private int barrelCount = 0;
+    private float startTime;
     private bool gameCompleted = false;
+
+    private GameObject interactionTarget = null; // NEW
 
     void Start()
     {
@@ -74,52 +75,50 @@ public class RakijaGame : MonoBehaviour
             tree.GetComponent<SpriteRenderer>().sprite = treeWithoutPlums;
         }
 
-        startTime = Time.time; 
-        gameCompleteUI.SetActive(false); 
+        startTime = Time.time;
+        gameCompleteUI.SetActive(false);
     }
 
     void Update()
     {
         CheckInteractions();
 
-        if (Input.GetMouseButtonDown(0)) // Left click
+        if (Input.GetMouseButtonDown(0))
         {
             Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             RaycastHit2D hit = Physics2D.Raycast(mouseWorldPos, Vector2.zero);
 
             if (hit.collider != null)
             {
-                GameObject clickedObject = hit.collider.gameObject;
+                interactionTarget = hit.collider.gameObject;
 
-                if (clickedObject == bucket.gameObject && isNearBucket)
-                {
-                    ToggleBucket();
-                }
-                else if (clickedObject == well.gameObject && isNearWell)
-                {
-                    TryExtractWater();
-                }
-                else if (trees.Contains(clickedObject.transform) && nearTree == clickedObject.transform)
-                {
-                    TryInteractWithTree(clickedObject.transform);
-                }
-                else if (clickedObject == masher.gameObject && isNearMasher)
-                {
-                    TryInteractWithMasher();
-                }
-                else if (clickedObject == kazan.gameObject && isNearKazan)
-                {
-                    TryInteractWithKazan();
-                }
+                // Move to nearby position near object
+                Vector3 objectPos = interactionTarget.transform.position;
+                Vector3 dir = (objectPos - player.transform.position).normalized;
+                Vector3 stopPosition = objectPos - dir * 0.2f;
+
+                player.MoveTo(stopPosition);
+            }
+            else
+            {
+                // No object clicked: just move to clicked position
+                player.MoveTo(mouseWorldPos);
+                interactionTarget = null; // Clear any existing target
             }
         }
 
-        // Stop water extraction when mouse is released
-        if (Input.GetMouseButtonUp(0) && isExtractingWater)
+        if (interactionTarget != null)
         {
-            StopExtractingWater();
+            float dist = Vector2.Distance(player.transform.position, interactionTarget.transform.position);
+            if (!player.IsMoving() && dist <= interactionDistance)
+            {
+                HandleInteraction(interactionTarget);
+                interactionTarget = null;
+            }
         }
     }
+
+
 
 
     void CheckInteractions()
@@ -138,6 +137,30 @@ public class RakijaGame : MonoBehaviour
             }
         }
         nearTree = null;
+    }
+
+    void HandleInteraction(GameObject target)
+    {
+        if (target == bucket.gameObject)
+        {
+            ToggleBucket();
+        }
+        else if (target == well.gameObject)
+        {
+            TryExtractWater();
+        }
+        else if (trees.Contains(target.transform))
+        {
+            TryInteractWithTree(target.transform);
+        }
+        else if (target == masher.gameObject)
+        {
+            TryInteractWithMasher();
+        }
+        else if (target == kazan.gameObject)
+        {
+            TryInteractWithKazan();
+        }
     }
 
     void ToggleBucket()
@@ -303,14 +326,9 @@ public class RakijaGame : MonoBehaviour
         }
         else if (rakijaReady)
         {
-            
             rakijaReady = false;
-            
-
-            
             SpawnBarrel();
 
-            
             barrelCount++;
             if (barrelCount >= 3 && !gameCompleted)
             {
@@ -329,7 +347,6 @@ public class RakijaGame : MonoBehaviour
 
     void SpawnBarrel()
     {
-        
         Transform spawnPoint = barrelSpawnPoints[barrelCount % barrelSpawnPoints.Length];
         Instantiate(barrelPrefab, spawnPoint.position, Quaternion.identity);
     }
@@ -338,17 +355,11 @@ public class RakijaGame : MonoBehaviour
     {
         gameCompleted = true;
 
-        
         float totalTime = Time.time - startTime;
-
-        
         int minutes = Mathf.FloorToInt(totalTime / 60);
         int seconds = Mathf.FloorToInt(totalTime % 60);
 
-        
         timeText.text = string.Format("{0}:{1:D2}", minutes, seconds);
-
-        gameCompleteUI.SetActive(true); 
+        gameCompleteUI.SetActive(true);
     }
-
 }
