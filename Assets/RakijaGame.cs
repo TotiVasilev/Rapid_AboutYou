@@ -54,7 +54,7 @@ public class RakijaGame : MonoBehaviour
     private Dictionary<Transform, int> treeWaterLevels = new Dictionary<Transform, int>();
     private Dictionary<Transform, bool> treeGrowthStatus = new Dictionary<Transform, bool>();
 
-    private float interactionDistance = .5f;
+    private float interactionDistance = 5f;
 
     private int barrelCount = 0;
     private float startTime;
@@ -92,14 +92,27 @@ public class RakijaGame : MonoBehaviour
             {
                 interactionTarget = hit.collider.gameObject;
 
-                // Move to nearby position near object
-                Vector3 objectPos = interactionTarget.transform.position;
-                Vector3 dir = (objectPos - player.transform.position).normalized;
-                Vector3 stopPosition = objectPos - dir * 0.2f;
+                // Get the collider of the hit object
+                Collider2D col = hit.collider;
 
+                // Get the center of the collider (this is the true object position in world space)
+                Vector3 objectPos = col.bounds.center;
+
+                // Calculate direction to the object from the player
+                Vector3 dir = (objectPos - player.transform.position).normalized;
+
+                // Calculate stop distance dynamically based on collider size (bounds.extents gives half of the size)
+                float stopDistance = col.bounds.extents.magnitude + 0.1f; // Small extra buffer to prevent overlap
+
+                // Calculate the stop position by subtracting the direction multiplied by the calculated distance
+                Vector3 stopPosition = objectPos - dir * stopDistance;
+
+                // Move the player towards the target stop position
                 player.MoveTo(stopPosition);
             }
-            else
+
+        
+        else
             {
                 // No object clicked: just move to clicked position
                 player.MoveTo(mouseWorldPos);
