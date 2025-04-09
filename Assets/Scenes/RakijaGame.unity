@@ -131,7 +131,7 @@ GameObject:
   - component: {fileID: 38316635}
   - component: {fileID: 38316637}
   - component: {fileID: 38316639}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Farm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -323,7 +323,7 @@ GameObject:
   m_Component:
   - component: {fileID: 108788771}
   - component: {fileID: 108788772}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Square
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -401,7 +401,7 @@ GameObject:
   m_Component:
   - component: {fileID: 167447445}
   - component: {fileID: 167447446}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Square (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -642,7 +642,8 @@ GameObject:
   - component: {fileID: 250007292}
   - component: {fileID: 250007291}
   - component: {fileID: 250007293}
-  m_Layer: 0
+  - component: {fileID: 250007294}
+  m_Layer: 6
   m_Name: Tree1
   m_TagString: Tree
   m_Icon: {fileID: 0}
@@ -694,7 +695,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 1
   m_Sprite: {fileID: 5302952269116913310, guid: 07ec13214542cf9408c3e71ce0837eed, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -765,6 +766,19 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.124604106, y: 0.15401495}
   m_EdgeRadius: 0
+--- !u!114 &250007294
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 250007290}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a562735208837e9438361c2f15bf5843, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  highlightColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &321754844
 GameObject:
   m_ObjectHideFlags: 0
@@ -1093,7 +1107,8 @@ GameObject:
   - component: {fileID: 600409047}
   - component: {fileID: 600409046}
   - component: {fileID: 600409048}
-  m_Layer: 0
+  - component: {fileID: 600409049}
+  m_Layer: 6
   m_Name: Masher
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1145,7 +1160,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 2
   m_Sprite: {fileID: -3481980466747669940, guid: fa28cbece096c4b4690502fecdcb74bc, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -1216,6 +1231,19 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.22115016, y: 0.021787405}
   m_EdgeRadius: 0
+--- !u!114 &600409049
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 600409045}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a562735208837e9438361c2f15bf5843, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  highlightColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &611860746
 GameObject:
   m_ObjectHideFlags: 0
@@ -1433,7 +1461,7 @@ GameObject:
   m_Component:
   - component: {fileID: 672767971}
   - component: {fileID: 672767972}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Lake (5)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1569,7 +1597,8 @@ GameObject:
   - component: {fileID: 859432658}
   - component: {fileID: 859432657}
   - component: {fileID: 859432659}
-  m_Layer: 0
+  - component: {fileID: 859432660}
+  m_Layer: 6
   m_Name: Tree
   m_TagString: Tree
   m_Icon: {fileID: 0}
@@ -1621,7 +1650,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 1
   m_Sprite: {fileID: 5302952269116913310, guid: 07ec13214542cf9408c3e71ce0837eed, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -1692,6 +1721,19 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.12291169, y: 0.11624515}
   m_EdgeRadius: 0
+--- !u!114 &859432660
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 859432656}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a562735208837e9438361c2f15bf5843, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  highlightColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &886433224
 GameObject:
   m_ObjectHideFlags: 0
@@ -1870,7 +1912,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1198852997}
   - component: {fileID: 1198852998}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Lake (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1939,7 +1981,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1261410275}
   - component: {fileID: 1261410276}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Lake (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2008,7 +2050,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1288352871}
   - component: {fileID: 1288352872}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Lake (6)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2077,7 +2119,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1394397670}
   - component: {fileID: 1394397671}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Lake (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2266,6 +2308,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 2
+  raycastDistance: 0.1
+  avoidanceDistance: 1
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 64
   rb: {fileID: 1433809376}
   spriteRenderer: {fileID: 1433809374}
   upSprite: {fileID: 6040005684588532219, guid: dae60d8712fcf3c4c961542a1ea6d581, type: 3}
@@ -2495,7 +2542,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1490714949}
   - component: {fileID: 1490714950}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Lake (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2644,7 +2691,8 @@ GameObject:
   - component: {fileID: 1564262949}
   - component: {fileID: 1564262948}
   - component: {fileID: 1564262950}
-  m_Layer: 0
+  - component: {fileID: 1564262951}
+  m_Layer: 6
   m_Name: Well
   m_TagString: Well
   m_Icon: {fileID: 0}
@@ -2696,7 +2744,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 1
   m_Sprite: {fileID: 2955286255927101427, guid: 0117b3672d81ca144b02c43d18716935, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -2767,6 +2815,19 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.24892032, y: 0.06399906}
   m_EdgeRadius: 0
+--- !u!114 &1564262951
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1564262947}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a562735208837e9438361c2f15bf5843, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  highlightColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &1594854023
 GameObject:
   m_ObjectHideFlags: 0
@@ -2778,7 +2839,8 @@ GameObject:
   - component: {fileID: 1594854026}
   - component: {fileID: 1594854025}
   - component: {fileID: 1594854024}
-  m_Layer: 0
+  - component: {fileID: 1594854027}
+  m_Layer: 6
   m_Name: Bucket
   m_TagString: Bucket
   m_Icon: {fileID: 0}
@@ -2876,7 +2938,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 2
   m_Sprite: {fileID: -8834130506350785624, guid: 3dbc959a57fac4d4eaeca842f2e75709, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -2901,6 +2963,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1594854027
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1594854023}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a562735208837e9438361c2f15bf5843, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  highlightColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &1659026768
 GameObject:
   m_ObjectHideFlags: 0
@@ -2911,7 +2986,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1659026769}
   - component: {fileID: 1659026770}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Square (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3093,7 +3168,8 @@ GameObject:
   - component: {fileID: 1723463898}
   - component: {fileID: 1723463897}
   - component: {fileID: 1723463899}
-  m_Layer: 0
+  - component: {fileID: 1723463900}
+  m_Layer: 6
   m_Name: Kazan
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3145,7 +3221,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 3
   m_Sprite: {fileID: 5240204813439854071, guid: 5bf6f65901bff63489c0d4ef7452b385, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -3216,6 +3292,19 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.821208, y: 0.157291}
   m_EdgeRadius: 0
+--- !u!114 &1723463900
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1723463896}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a562735208837e9438361c2f15bf5843, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  highlightColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &1805518088
 GameObject:
   m_ObjectHideFlags: 0
@@ -3303,7 +3392,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1878891835}
   - component: {fileID: 1878891836}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Lake
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3372,7 +3461,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1891457203}
   - component: {fileID: 1891457204}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Square (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3449,7 +3538,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1896139137}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Boundaries
   m_TagString: Untagged
   m_Icon: {fileID: 0}

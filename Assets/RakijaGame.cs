@@ -82,35 +82,45 @@ public class RakijaGame : MonoBehaviour
     {
         CheckInteractions();
 
-        if (Input.GetKeyDown(KeyCode.G) && isNearBucket)
+        if (Input.GetMouseButtonDown(0)) // Left click
         {
-            ToggleBucket();
+            Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            RaycastHit2D hit = Physics2D.Raycast(mouseWorldPos, Vector2.zero);
+
+            if (hit.collider != null)
+            {
+                GameObject clickedObject = hit.collider.gameObject;
+
+                if (clickedObject == bucket.gameObject && isNearBucket)
+                {
+                    ToggleBucket();
+                }
+                else if (clickedObject == well.gameObject && isNearWell)
+                {
+                    TryExtractWater();
+                }
+                else if (trees.Contains(clickedObject.transform) && nearTree == clickedObject.transform)
+                {
+                    TryInteractWithTree(clickedObject.transform);
+                }
+                else if (clickedObject == masher.gameObject && isNearMasher)
+                {
+                    TryInteractWithMasher();
+                }
+                else if (clickedObject == kazan.gameObject && isNearKazan)
+                {
+                    TryInteractWithKazan();
+                }
+            }
         }
 
-        if (hasBucket)
+        // Stop water extraction when mouse is released
+        if (Input.GetMouseButtonUp(0) && isExtractingWater)
         {
-            if (Input.GetKey(KeyCode.F) && isNearWell)
-            {
-                TryExtractWater();
-            }
-            else if (Input.GetKeyUp(KeyCode.F) && isExtractingWater)
-            {
-                StopExtractingWater();
-            }
-            else if (Input.GetKeyDown(KeyCode.F) && nearTree != null)
-            {
-                TryInteractWithTree(nearTree);
-            }
-            else if (Input.GetKeyDown(KeyCode.F) && isNearMasher)
-            {
-                TryInteractWithMasher();
-            }
-            else if (Input.GetKeyDown(KeyCode.F) && isNearKazan)
-            {
-                TryInteractWithKazan();
-            }
+            StopExtractingWater();
         }
     }
+
 
     void CheckInteractions()
     {

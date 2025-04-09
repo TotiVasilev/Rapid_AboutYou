@@ -3,13 +3,17 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public float moveSpeed = 5f;
+    public float raycastDistance = 1f; // Distance to check for obstacles
+    public float avoidanceDistance = 1f; // How far to try avoiding obstacles
+    public LayerMask obstacleLayer; // Layer mask to identify obstacles
     public Rigidbody2D rb;
     public SpriteRenderer spriteRenderer;
     public Sprite upSprite, downSprite, leftSprite, rightSprite;
     public Sprite upSpriteWithBucket, downSpriteWithBucket, leftSpriteWithBucket, rightSpriteWithBucket;
 
-    private Vector2 movement;
+    private Vector2 targetPosition;
     private bool isHoldingBucket = false;
+    private bool isMoving = false;
 
     // Track the player's facing direction
     private enum Direction { Up, Down, Left, Right, None }
@@ -21,43 +25,103 @@ public class PlayerController : MonoBehaviour
         rb.gravityScale = 0;
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
 
-        // Initialize the player's facing direction (set to a default, like "Right" or "Down")
-        lastDirection = Direction.Right; // or you can choose Direction.Left, Direction.Up, etc. based on your preference
-
-        // Update sprite immediately based on the initial facing direction
+        // Set the initial position and sprite
+        targetPosition = transform.position;
+        lastDirection = Direction.Right;
         UpdateSprite();
     }
 
     void Update()
     {
-        // Get input from player
-        movement.x = Input.GetAxisRaw("Horizontal");
-        movement.y = Input.GetAxisRaw("Vertical");
+        // Check for left mouse click and update target position
+        if (Input.GetMouseButtonDown(0))  // Left click (0)
+        {
+            Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            mousePos.z = 0f;  // Ensure the target position is on the same plane as the player
+            targetPosition = new Vector2(mousePos.x, mousePos.y);
+            isMoving = true;  // Player is now moving towards the target position
+        }
 
-        // Prevent diagonal movement from being faster
-        if (movement.x != 0)
-            movement.y = 0;
-
-        // Update the last direction the player is facing
+        // Update sprite based on the direction of movement
         UpdateFacingDirection();
-
-        // Update sprite based on the last facing direction
         UpdateSprite();
     }
 
     void FixedUpdate()
     {
-        // Move the player
-        rb.linearVelocity = movement * moveSpeed;
+        if (isMoving)
+        {
+            MoveTowardsTarget();
+        }
     }
 
-    // Update the last facing direction based on input
+    private void MoveTowardsTarget()
+    {
+        // Get the direction to the target
+        Vector2 direction = targetPosition - (Vector2)transform.position;
+
+        // Raycast in the direction of movement to check for obstacles
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, direction.normalized, raycastDistance, obstacleLayer);
+
+        if (hit.collider != null) // If there is an obstacle in the way
+        {
+            // Attempt to avoid the obstacle by checking left and right
+            Vector2 avoidanceDirection = TryAvoidObstacle(direction);
+            rb.linearVelocity = avoidanceDirection * moveSpeed;  // Apply velocity to move around the obstacle
+        }
+        else // No obstacle, move towards the target normally
+        {
+            if (direction.magnitude > 0.1f)  // Continue moving until the player is close to the target
+            {
+                rb.linearVelocity = direction.normalized * moveSpeed;
+            }
+            else
+            {
+                rb.linearVelocity = Vector2.zero;  // Stop moving once the target is reached
+                isMoving = false;  // Stop the movement
+            }
+        }
+    }
+
+    // Try to avoid the obstacle by checking left and right for a clear path
+    private Vector2 TryAvoidObstacle(Vector2 direction)
+    {
+        // Check for obstacles to the left and right of the player
+        Vector2 leftDirection = Quaternion.Euler(0, 0, 90) * direction; // Rotate direction 90 degrees counter-clockwise
+        Vector2 rightDirection = Quaternion.Euler(0, 0, -90) * direction; // Rotate direction 90 degrees clockwise
+
+        RaycastHit2D hitLeft = Physics2D.Raycast(transform.position, leftDirection, avoidanceDistance, obstacleLayer);
+        RaycastHit2D hitRight = Physics2D.Raycast(transform.position, rightDirection, avoidanceDistance, obstacleLayer);
+
+        if (hitLeft.collider == null) // No obstacle to the left, move left
+        {
+            return leftDirection;
+        }
+        else if (hitRight.collider == null) // No obstacle to the right, move right
+        {
+            return rightDirection;
+        }
+        else // If both left and right are blocked, keep moving forward
+        {
+            return direction.normalized;
+        }
+    }
+
+    // Update the last facing direction based on the movement direction
     private void UpdateFacingDirection()
     {
-        if (movement.y < 0) lastDirection = Direction.Down;
-        else if (movement.x < 0) lastDirection = Direction.Left;
-        else if (movement.y > 0) lastDirection = Direction.Up;
-        else if (movement.x > 0) lastDirection = Direction.Right;
+        if (isMoving)
+        {
+            Vector2 direction = targetPosition - (Vector2)transform.position;
+            if (Mathf.Abs(direction.x) > Mathf.Abs(direction.y))
+            {
+                lastDirection = direction.x > 0 ? Direction.Right : Direction.Left;
+            }
+            else
+            {
+                lastDirection = direction.y > 0 ? Direction.Up : Direction.Down;
+            }
+        }
     }
 
     // Function to update the sprite based on the facing direction
