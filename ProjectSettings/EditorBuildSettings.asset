@@ -6,6 +6,12 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/Menu.unity
+    guid: a6325f9aa536645459ada0871aea58c5
+  - enabled: 1
+    path: Assets/Scenes/Classroom.unity
+    guid: 7fef0c29992f69c4f9e934e01834ac59
+  - enabled: 1
     path: Assets/Scenes/RakijaGame.unity
     guid: 8c9cfa26abfee488c85f1582747f6a02
   m_configObjects:

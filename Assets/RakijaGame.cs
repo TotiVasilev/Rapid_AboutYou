@@ -1,10 +1,17 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.EventSystems;
 
 public class RakijaGame : MonoBehaviour
 {
+    public AudioClip waterSound;
+    public AudioClip mashSound;
+    public AudioClip boilSound;
+
+    private AudioSource audioSource;
+
     public Transform well;
     public List<Transform> trees;
     public Transform masher;
@@ -30,7 +37,6 @@ public class RakijaGame : MonoBehaviour
 
     public Slider extractionSlider;
     private bool isExtractingWater = false;
-    private float extractionProgress = 0f;
 
     private bool isNearBucket = false;
     private bool isNearWell = false;
@@ -53,6 +59,7 @@ public class RakijaGame : MonoBehaviour
 
     private Dictionary<Transform, int> treeWaterLevels = new Dictionary<Transform, int>();
     private Dictionary<Transform, bool> treeGrowthStatus = new Dictionary<Transform, bool>();
+    private Dictionary<Transform, bool> plumsReadyToCollect = new Dictionary<Transform, bool>();
 
     private float interactionDistance = 5f;
 
@@ -60,10 +67,20 @@ public class RakijaGame : MonoBehaviour
     private float startTime;
     private bool gameCompleted = false;
 
-    private GameObject interactionTarget = null; // NEW
+    private GameObject interactionTarget = null;
+    public bool DisableMoving = false;
+    public GameObject tipsButton;
 
     void Start()
     {
+        foreach (Transform tree in trees)
+        {
+            treeWaterLevels[tree] = 0;
+            treeGrowthStatus[tree] = false;
+            plumsReadyToCollect[tree] = false;
+            tree.GetComponent<SpriteRenderer>().sprite = treeWithoutPlums;
+        }
+        audioSource = gameObject.AddComponent<AudioSource>();
         bucketSpriteRenderer = bucket.GetComponent<SpriteRenderer>();
         bucketSpriteRenderer.sprite = emptyBucketSprite;
         extractionSlider.gameObject.SetActive(false);
@@ -83,6 +100,9 @@ public class RakijaGame : MonoBehaviour
     {
         CheckInteractions();
 
+        if (DisableMoving || EventSystem.current.IsPointerOverGameObject())
+            return;
+
         if (Input.GetMouseButtonDown(0))
         {
             Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -92,31 +112,18 @@ public class RakijaGame : MonoBehaviour
             {
                 interactionTarget = hit.collider.gameObject;
 
-                // Get the collider of the hit object
                 Collider2D col = hit.collider;
-
-                // Get the center of the collider (this is the true object position in world space)
                 Vector3 objectPos = col.bounds.center;
-
-                // Calculate direction to the object from the player
                 Vector3 dir = (objectPos - player.transform.position).normalized;
-
-                // Calculate stop distance dynamically based on collider size (bounds.extents gives half of the size)
-                float stopDistance = col.bounds.extents.magnitude + 0.1f; // Small extra buffer to prevent overlap
-
-                // Calculate the stop position by subtracting the direction multiplied by the calculated distance
+                float stopDistance = col.bounds.extents.magnitude + 0.1f;
                 Vector3 stopPosition = objectPos - dir * stopDistance;
 
-                // Move the player towards the target stop position
                 player.MoveTo(stopPosition);
             }
-
-        
-        else
+            else
             {
-                // No object clicked: just move to clicked position
                 player.MoveTo(mouseWorldPos);
-                interactionTarget = null; // Clear any existing target
+                interactionTarget = null;
             }
         }
 
@@ -131,8 +138,10 @@ public class RakijaGame : MonoBehaviour
         }
     }
 
-
-
+    public void DontMoove()
+    {
+        DisableMoving = true;
+    }
 
     void CheckInteractions()
     {
@@ -205,35 +214,17 @@ public class RakijaGame : MonoBehaviour
         if (!isExtractingWater)
         {
             isExtractingWater = true;
-            extractionProgress = 0f;
-            extractionSlider.gameObject.SetActive(true);
             StartCoroutine(ExtractWater());
         }
     }
 
     IEnumerator ExtractWater()
     {
-        while (extractionProgress < 1f && isExtractingWater)
-        {
-            extractionProgress += Time.deltaTime / 2f;
-            extractionSlider.value = extractionProgress;
-            yield return null;
-        }
-
-        if (isExtractingWater)
+        yield return StartCoroutine(ShowProgress(2f, () =>
         {
             bucketFull = true;
             bucketSpriteRenderer.sprite = fullBucketSprite;
-        }
-
-        extractionSlider.gameObject.SetActive(false);
-        isExtractingWater = false;
-    }
-
-    void StopExtractingWater()
-    {
-        isExtractingWater = false;
-        extractionSlider.gameObject.SetActive(false);
+        }, waterSound));
     }
 
     void TryInteractWithTree(Transform tree)
@@ -242,7 +233,7 @@ public class RakijaGame : MonoBehaviour
         {
             WaterTree(tree);
         }
-        else if (treeGrowthStatus[tree] && !bucketHasPlums)
+        else if (plumsReadyToCollect.ContainsKey(tree) && plumsReadyToCollect[tree] && !bucketHasPlums)
         {
             CollectPlums(tree);
         }
@@ -255,7 +246,7 @@ public class RakijaGame : MonoBehaviour
         bucketSpriteRenderer.sprite = emptyBucketSprite;
         Debug.Log($"Watered tree: {treeWaterLevels[tree]}/3");
 
-        if (treeWaterLevels[tree] >= 3)
+        if (treeWaterLevels[tree] >= 1)
         {
             StartCoroutine(GrowPlums(tree));
         }
@@ -264,9 +255,14 @@ public class RakijaGame : MonoBehaviour
     IEnumerator GrowPlums(Transform tree)
     {
         treeGrowthStatus[tree] = true;
-        yield return new WaitForSeconds(5f);
-        tree.GetComponent<SpriteRenderer>().sprite = treeWithPlums;
+
+        yield return StartCoroutine(ShowProgress(5f, () =>
+        {
+            tree.GetComponent<SpriteRenderer>().sprite = treeWithPlums;
+            plumsReadyToCollect[tree] = true; 
+        }));
     }
+
 
     void CollectPlums(Transform tree)
     {
@@ -278,10 +274,14 @@ public class RakijaGame : MonoBehaviour
 
         bucketHasPlums = true;
         bucketSpriteRenderer.sprite = bucketWithPlums;
+
         tree.GetComponent<SpriteRenderer>().sprite = treeWithoutPlums;
+
         treeGrowthStatus[tree] = false;
+        plumsReadyToCollect[tree] = false;
         treeWaterLevels[tree] = 0;
     }
+
 
     void TryInteractWithMasher()
     {
@@ -305,12 +305,13 @@ public class RakijaGame : MonoBehaviour
 
     IEnumerator ProcessPlums()
     {
-        yield return new WaitForSeconds(5f);
-        liquidReady = true;
-        masherProcessing = false;
+        yield return StartCoroutine(ShowProgress(5f, () =>
+        {
+            liquidReady = true;
+            masherProcessing = false;
+        }, mashSound));
     }
-
-    void CollectLiquid()
+        void CollectLiquid()
     {
         if (!liquidReady || bucketHasPlums || bucketFull)
         {
@@ -331,7 +332,7 @@ public class RakijaGame : MonoBehaviour
             bucketHasLiquid = false;
             bucketSpriteRenderer.sprite = emptyBucketSprite;
 
-            if (kazanLiquidCount >= 3)
+            if (kazanLiquidCount >= 1)
             {
                 kazanProcessing = true;
                 StartCoroutine(BoilLiquid());
@@ -343,7 +344,7 @@ public class RakijaGame : MonoBehaviour
             SpawnBarrel();
 
             barrelCount++;
-            if (barrelCount >= 3 && !gameCompleted)
+            if (barrelCount >= 1 && !gameCompleted)
             {
                 EndGame();
             }
@@ -352,13 +353,15 @@ public class RakijaGame : MonoBehaviour
 
     IEnumerator BoilLiquid()
     {
-        yield return new WaitForSeconds(boilingTime);
-        rakijaReady = true;
-        kazanProcessing = false;
-        kazanLiquidCount = 0;
+        yield return StartCoroutine(ShowProgress(boilingTime, () =>
+        {
+            rakijaReady = true;
+            kazanProcessing = false;
+            kazanLiquidCount = 0;
+        }, boilSound));
     }
 
-    void SpawnBarrel()
+        void SpawnBarrel()
     {
         Transform spawnPoint = barrelSpawnPoints[barrelCount % barrelSpawnPoints.Length];
         Instantiate(barrelPrefab, spawnPoint.position, Quaternion.identity);
@@ -374,5 +377,32 @@ public class RakijaGame : MonoBehaviour
 
         timeText.text = string.Format("{0}:{1:D2}", minutes, seconds);
         gameCompleteUI.SetActive(true);
+        tipsButton.SetActive(false);
     }
+
+    IEnumerator ShowProgress(float duration, System.Action onComplete, AudioClip sound = null)
+    {
+        extractionSlider.value = 0f;
+        extractionSlider.gameObject.SetActive(true);
+
+        if (sound != null)
+        {
+            audioSource.clip = sound;
+            audioSource.loop = true;
+            audioSource.Play();
+        }
+
+        float progress = 0f;
+        while (progress < 1f)
+        {
+            progress += Time.deltaTime / duration;
+            extractionSlider.value = progress;
+            yield return null;
+        }
+
+        audioSource.Stop();
+        extractionSlider.gameObject.SetActive(false);
+        onComplete?.Invoke();
+    }
+
 }
